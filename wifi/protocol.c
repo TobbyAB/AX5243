@@ -85,7 +85,7 @@ const DOWNLOAD_CMD_S download_cmd[] =
   {DPID_DEVICE_CHECK, DP_TYPE_BOOL},
   {DPID_DEVICE_ALARM, DP_TYPE_BOOL},
   {DPID_CONTROL_STATE, DP_TYPE_BOOL},
-  {DPID_DELAY_STATE, DP_TYPE_BOOL},
+  {DPID_MAIN_DELAY_STATE, DP_TYPE_BOOL},
   {DPID_LOCK, DP_TYPE_BOOL},
   {DPID_LINE_STATE, DP_TYPE_BOOL},
   {DPID_DELAY_TIME, DP_TYPE_ENUM},
@@ -155,7 +155,7 @@ void WariningUpload(uint32_t device_id,uint8_t state,uint8_t value)
                mcu_dp_enum_update(1,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
                break;
             case 2://电量
-               mcu_dp_value_update(102,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
+                mcu_dp_enum_update(102,value,Buf,my_strlen(Buf)); //BOOL型数据上报;
                break;
         }
     }
@@ -176,15 +176,68 @@ void WariningUpload(uint32_t device_id,uint8_t state,uint8_t value)
     }
    rt_free(Buf);
 }
+void moto_test(void)
+{
+    WariningUpload(0,0,0);
+}
+MSH_CMD_EXPORT(moto_test,moto_test);
+void moto_off(void)
+{
+    Warning_Clear_WiFi();
+    WariningUpload(0,0,1);
+}
+MSH_CMD_EXPORT(moto_off,moto_off);
+void bat_test0(void)
+{
+    WariningUpload(20000000,2,0);
+}
+MSH_CMD_EXPORT(bat_test0,bat_test0);
+void bat_test1(void)
+{
+    WariningUpload(20000000,2,1);
+}
+MSH_CMD_EXPORT(bat_test1,bat_test1);
+void bat_test2(void)
+{
+    WariningUpload(20000000,2,2);
+}
+MSH_CMD_EXPORT(bat_test2,bat_test2);
+void off_test(void)
+{
+    WariningUpload(20000000,0,1);
+}
+MSH_CMD_EXPORT(off_test,off_test);
+void off_close(void)
+{
+    Warning_Clear_WiFi();
+    WariningUpload(20000000,0,0);
+}
+MSH_CMD_EXPORT(off_close,off_close);
+void water_test(void)
+{
+    WariningUpload(20000000,1,0);
+}
+MSH_CMD_EXPORT(water_test,water_test);
+void wateroff(void)
+{
+    Warning_Clear_WiFi();
+    WariningUpload(20000000,1,1);
+}
+MSH_CMD_EXPORT(wateroff,wateroff);
 void Slave_Heart(uint32_t device_id,uint8_t rssi,uint8_t bat)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
     LOG_D("Slave_Heart Device ID is %ld,rssi is %d,bat is %d\r\n",device_id,rssi,bat);
-    mcu_dp_value_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
-    mcu_dp_value_update(102,bat,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    mcu_dp_enum_update(101,rssi,Buf,my_strlen(Buf)); //VALUE型数据上报;
+    mcu_dp_enum_update(102,bat,Buf,my_strlen(Buf)); //VALUE型数据上报;
 //    heart_beat_report(Buf,1);
 }
+void rssi_test(void)
+{
+    Slave_Heart(20000000,1,1);
+}
+MSH_CMD_EXPORT(rssi_test,rssi_test);
 void MotoUpload(uint8_t state)
 {
     char *Buf = rt_malloc(20);
@@ -201,6 +254,16 @@ void RemoteOpenUpload(uint32_t device_id,uint8_t state)
     mcu_dp_bool_update(DPID_CONTROL_STATE,state,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
+void door_open(void)
+{
+    RemoteOpenUpload(30000001,1);
+}
+MSH_CMD_EXPORT(door_open,door_open);
+void door_close(void)
+{
+    RemoteOpenUpload(30000001,0);
+}
+MSH_CMD_EXPORT(door_close,door_close);
 void KidLockUp(uint8_t state)
 {
     char *Buf = rt_malloc(20);
@@ -243,16 +306,23 @@ void Delay_Close_WiFi(uint32_t device_id)
     mcu_dp_bool_update(DPID_DELAY_STATE,1,Buf,my_strlen(Buf)); //VALUE型数据上报;
     rt_free(Buf);
 }
+void delay_test(void)
+{
+    Delay_Close_WiFi(30000001);
+}
+MSH_CMD_EXPORT(delay_test,delay_test);
 void Warning_Clear_WiFi(void)
 {
     LOG_D("Warning_Clear_WiFi is upload\r\n");
     mcu_dp_bool_update(DPID_NORMAL,1,STR_GATEWAY_ITSELF_ID,my_strlen(STR_GATEWAY_ITSELF_ID)); //VALUE型数据上报;
 }
+MSH_CMD_EXPORT(Warning_Clear_WiFi,Warning_Clear_WiFi);
 void Warning_WiFi(void)
 {
     LOG_D("Warning_WiFi is upload\r\n");
     mcu_dp_bool_update(DPID_NORMAL,0,STR_GATEWAY_ITSELF_ID,my_strlen(STR_GATEWAY_ITSELF_ID)); //VALUE型数据上报;
 }
+MSH_CMD_EXPORT(Warning_WiFi,Warning_WiFi);
 void all_data_update(void)
 {
     //#error "请在此处理可下发可上报数据及只上报数据示例,处理完成后删除该行"
@@ -266,7 +336,7 @@ void all_data_update(void)
     子设备dp：
     mcu_dp_bool_update(DPID_SWITCH_SPRAY,当前喷雾开关,子设备id,子设备id长度); //BOOL型数据上报;
     mcu_dp_enum_update(DPID_MODE,当前喷雾模式,子设备id,子设备id长度); //枚举型数据上报;
-    mcu_dp_enum_update(DPID_COUNTDOWN_SET,当前喷雾倒计时,子设备id,子设备id长度); //枚举型数据上报;
+    mcu_dp_enum_update(DPID_COU NTDOWN_SET,当前喷雾倒计时,子设备id,子设备id长度); //枚举型数据上报;
     */
   
 
@@ -435,7 +505,7 @@ static unsigned char dp_download_delay_state_handle(const unsigned char value[],
         //开关开
     }
     //处理完DP数据后应有反馈
-    ret = mcu_dp_bool_update(DPID_DELAY_STATE,delay_state, sub_id_buf, sub_id_len);
+    ret = mcu_dp_bool_update(DPID_MAIN_DELAY_STATE,delay_state, sub_id_buf, sub_id_len);
     if(ret == SUCCESS)
         return SUCCESS;
     else
@@ -575,7 +645,7 @@ unsigned char dp_download_handle(unsigned char dpid,const unsigned char value[],
             //门控开关阀处理函数
             ret = dp_download_control_state_handle(value,length,sub_id_buf,sub_id_len);
         break;
-        case DPID_DELAY_STATE:
+        case DPID_MAIN_DELAY_STATE:
             //延时开关开关阀处理函数
             ret = dp_download_delay_state_handle(value,length,sub_id_buf,sub_id_len);
         break;

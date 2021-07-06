@@ -179,6 +179,22 @@ uint8_t Add_Device(uint32_t Device_ID)
     Device_Add_WiFi(Device_ID);
     return RT_EOK;
 }
+void add_test(void)
+{
+    Add_Device(20000000);
+}
+MSH_CMD_EXPORT(add_test,add_test);
+void door_test(void)
+{
+    Add_DoorDevice(30000001);
+}
+MSH_CMD_EXPORT(door_test,door_test);
+void door_test1(void)
+{
+    Device_Delete_WiFi(30000001);
+    Add_DoorDevice(30000002);
+}
+MSH_CMD_EXPORT(door_test1,door_test1);
 uint8_t Add_DoorDevice(uint32_t Device_ID)
 {
     uint32_t Num=0;

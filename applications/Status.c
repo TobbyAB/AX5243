@@ -64,6 +64,7 @@ void Warning_Enable(WariningEvent event)
 }
 void Warning_Enable_Num(uint8_t id)
 {
+    //Warning_WiFi();
     switch(id)
     {
     case 1:Warning_Enable(SlaverLowPowerEvent);break;
@@ -73,7 +74,6 @@ void Warning_Enable_Num(uint8_t id)
     case 5:Warning_Enable(OfflineEvent);break;
     case 6:Warning_Enable(MotoFailEvent);break;
     }
-    Warning_WiFi();
 }
 void Warning_Disable(void)
 {
