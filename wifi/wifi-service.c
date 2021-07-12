@@ -39,21 +39,38 @@ void Exit_WiFi(void)
     beep_start(0,11);//beep 3 times
 }
 MSH_CMD_EXPORT(Exit_WiFi,Exit_WiFi);
+
+rt_timer_t Reset_WiFi_Timer = RT_NULL;
+uint8_t Reset_WiFi_Counter = RT_NULL;
 void Reset_WiFi(void)
 {
     just_ring();
     mcu_reset_wifi();
-    rt_thread_mdelay(500);
-    if(mcu_get_reset_wifi_flag()==1)
+    Reset_WiFi_Counter = 0;
+    rt_timer_start(Reset_WiFi_Timer);
+    LOG_D("Wait For Reset Result\r\n");
+}
+void Reset_WiFi_Callback(void *parameter)
+{
+    if(Reset_WiFi_Counter<3 && mcu_get_reset_wifi_flag()!=1)
     {
-        LOG_D("Wifi Reset Success\r\n");
+        Reset_WiFi_Counter++;
+        just_ring();
+        mcu_reset_wifi();
+        LOG_D("Wifi Reset Retry Num is %d\r\n",Reset_WiFi_Counter);
     }
-    else
+    else if(Reset_WiFi_Counter<3 && mcu_get_reset_wifi_flag()==1)
+    {
+        Reset_WiFi_Counter++;
+        LOG_D("Wifi Reset Success\r\n");
+        rt_timer_stop(Reset_WiFi_Timer);
+    }
+    else if(Reset_WiFi_Counter>=3)
     {
         LOG_D("Wifi Reset Fail\r\n");
+        rt_timer_stop(Reset_WiFi_Timer);
     }
 }
-MSH_CMD_EXPORT(Reset_WiFi,Reset_WiFi);
 void service_callback(void *parameter)
 {
     while(1)
@@ -64,6 +81,7 @@ void service_callback(void *parameter)
 }
 void wifi_service_init(void)
 {
+    Reset_WiFi_Timer = rt_timer_create("Reset_WiFi_Timer", Reset_WiFi_Callback, RT_NULL, 1000, RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_PERIODIC);
     WiFi_Service_Thread = rt_thread_create("wifi-service", service_callback, RT_NULL, 2048, 10, 10);
     if(WiFi_Service_Thread!=RT_NULL)rt_thread_startup(WiFi_Service_Thread);
 }

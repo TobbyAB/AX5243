@@ -370,6 +370,7 @@ mcu在wifi模块正确联网后可调用 get_green_time_with_zone() 函数发起
 //备注:开阀方式3：延时开关执行开关阀
 #define DPID_DELAY_STATE 105
 //童锁开关(可下发可上报)
+#define DPID_MAIN_DELAY_STATE 106
 //备注:
 #define DPID_LOCK 108
 //测水线脱落报警(只上报)

@@ -63,7 +63,7 @@ void data_parsing(void)
     {
         ch = uart_sample_get_char();
         uart_receive_input(ch);
-        //LOG_D("GET Data is %X\r\n",ch);
+        //LOG_RAW("%X",ch);
     }
 }
 void WiFi_Byte_Send(uint8_t data)
@@ -131,6 +131,6 @@ void WiFi_Init(void)
     wifi_uart_init();
     wifi_service_init();
     wifi_gpio_enable();
-    Wifi_Init_Timer = rt_timer_create("Wifi_Init",Wifi_Init_Timer_Callback,RT_NULL,12000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
+    Wifi_Init_Timer = rt_timer_create("Wifi_Init",Wifi_Init_Timer_Callback,RT_NULL,15000,RT_TIMER_FLAG_SOFT_TIMER|RT_TIMER_FLAG_ONE_SHOT);
     rt_timer_start(Wifi_Init_Timer);
 }
