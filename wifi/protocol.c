@@ -142,7 +142,7 @@ void WariningUpload(uint32_t device_id,uint8_t state,uint8_t value)
 {
     char *Buf = rt_malloc(20);
     sprintf(Buf,"%ld",device_id);
-    LOG_D("WariningUpload Device ID is %ld,State is %d\r\n",device_id,state);
+    LOG_D("WariningUpload Device ID is %ld,type is %d,value is %d\r\n",device_id,state,value);
     if(device_id>0)
     {
         //mcu_dp_enum_update(1,value,Buf,my_strlen(Buf)); //BOOL型数据上报;

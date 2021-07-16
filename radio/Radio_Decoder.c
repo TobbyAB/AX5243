@@ -241,6 +241,7 @@ void DataSolve(Message buf)
                 else//是否为来自终端的数据
                 {
                     RadioEnqueue(0,buf.From_ID,buf.Counter,4,0);
+                    WariningUpload(buf.From_ID,1,1);
 //                    if(GetDoorID())
 //                    {
 //                        RadioEnqueue(1,GetDoorID(),buf.Counter,4,0);
@@ -264,7 +265,7 @@ void DataSolve(Message buf)
 //                            RadioEnqueue(1,GetDoorID(),buf.Counter,4,1);
 //                        }
                         Enable_Warining();
-                        WariningUpload(buf.From_ID,1,1);
+                        WariningUpload(buf.From_ID,1,0);
                     }
                 }
             }
